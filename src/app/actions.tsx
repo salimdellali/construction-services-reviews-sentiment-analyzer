@@ -1,10 +1,9 @@
-import { openai } from "@ai-sdk/openai"
-import { OpenAIChatModelId } from "@ai-sdk/openai/internal"
-import { streamText } from "ai"
+"use server"
 
-// Allow streaming responses up to 30s
-export const maxDuration = 30
-const openAIChatModelId: OpenAIChatModelId = "gpt-4-turbo"
+import { createStreamableValue } from "ai/rsc"
+import { CoreMessage, CoreTool, streamText, StreamTextResult } from "ai"
+import { openai } from "@ai-sdk/openai"
+
 const systemSetUpMessage = `
   You are an AI chatbot specialized in analyzing the sentiment of user reviews. 
   When a user inputs a review, your task is to determine and respond with the sentiment of the review.
@@ -34,14 +33,14 @@ const systemSetUpMessage = `
   Do not perform any tasks beyond sentiment classification.
 `
 
-export async function POST(req: Request) {
-  const { messages } = await req.json()
+export async function continueConversation(messages: CoreMessage[]) {
+  const result: StreamTextResult<Record<string, CoreTool<any, any>>> =
+    await streamText({
+      model: openai("gpt-4-turbo"),
+      system: systemSetUpMessage,
+      messages,
+    })
 
-  const result = await streamText({
-    model: openai(openAIChatModelId),
-    system: systemSetUpMessage,
-    messages,
-  })
-
-  return result.toAIStreamResponse()
+  const stream = createStreamableValue(result.textStream)
+  return stream.value
 }

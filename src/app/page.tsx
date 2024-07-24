@@ -1,8 +1,10 @@
 "use client"
 
-import { useChat } from "ai/react"
 import { Input } from "../components/ui/input"
-import { useEffect, useRef } from "react"
+import { useEffect, useRef, useState } from "react"
+import { type CoreMessage } from "ai"
+import { continueConversation } from "./actions"
+import { readStreamableValue } from "ai/rsc"
 import { Separator } from "../components/ui/separator"
 
 enum Role {
@@ -10,9 +12,12 @@ enum Role {
   ASSISTANT = "assistant",
 }
 
+// Allow streaming responses up to 30s
+export const maxDuration = 30
+
 export default function Chat() {
-  // use the useChat hook
-  const { messages, input, handleInputChange, handleSubmit } = useChat()
+  const [messages, setMessages] = useState<CoreMessage[]>([])
+  const [input, setInput] = useState<string>("")
 
   // enable auto bottom scroll
   const messagesEndRef = useRef<HTMLDivElement | null>(null)
@@ -26,6 +31,36 @@ export default function Chat() {
   useEffect(() => {
     scrollToBottom()
   }, [messages])
+
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    // 1. prevent default form submission behavior
+    e.preventDefault()
+
+    // 2. update the messages state by appending the new user input message to the current list of messages
+    const newMessages: CoreMessage[] = [
+      ...messages,
+      {
+        role: Role.USER,
+        content: input,
+      },
+    ]
+    setMessages(newMessages)
+
+    // 3. clear user input
+    setInput("")
+
+    // 4. call the continue conversation backend action and get the assistant's response
+    const result = await continueConversation(newMessages)
+
+    // 5. asynchronously iterate over the chunks of received data and
+    // update the messages state with the received assistant's response
+    for await (const content of readStreamableValue(result)) {
+      setMessages([
+        ...newMessages,
+        { role: Role.ASSISTANT, content: content as string },
+      ])
+    }
+  }
 
   return (
     <div className="flex flex-col w-full max-w-md py-24 mx-auto stretch">
@@ -42,15 +77,15 @@ export default function Chat() {
       <Separator className="my-4" />
 
       {/* render the messages */}
-      {messages.map((m) => (
+      {messages.map((m, i) => (
         <div
-          key={m.id}
+          key={i}
           className={`whitespace-pre-wrap break-words ${
             m.role === Role.ASSISTANT && "mb-4"
           }`}
         >
           {m.role === Role.USER ? "🧑 User: " : "🤖 AI: "}
-          {m.content}
+          {m.content as string}
         </div>
       ))}
 
@@ -61,7 +96,7 @@ export default function Chat() {
             className="fixed bottom-0 w-full max-w-md p-2 mb-8 border border-gray-500 rounded shadow-xl"
             value={input}
             placeholder="Write your review..."
-            onChange={handleInputChange}
+            onChange={(e) => setInput(e.target.value)}
           />
         </form>
       </div>
