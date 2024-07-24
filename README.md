@@ -1,36 +1,39 @@
+# Construction Services Reviews Sentiment Analyzer AI Chatbot
+
+Write down or copy/paste a review related to a construction service, the AI assistant shall analyze the sentiment of the review.
+
 This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
 
-## Getting Started
+## Development steps
 
-First, run the development server:
+1. Init `Next.js` app
+1. Install `ShadCN UI` and try the library
+1. Setup construction services reviews analyzer AI Chatbot using `/api/chat` endpoint with `useChat()` hook
+1. Convert from api endpoint usage into server actions calls
+1. Improve the Chat UI
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+## Run the app locally
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+- run `npm install` to install dependencies
+- Copy content from `.env.example` into a new file `.env`
+- Paste your `ÒPENAI API` inside the `.env` file
+- Run `npm run build` to build the project
+- Lunch the app by running `npm start`
+- The app should be served on `http://localhost:3000`
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Development
 
-This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
+- run `npm run dev` to launch the development live-refresh server
 
-## Learn More
+## Tech stack
 
-To learn more about Next.js, take a look at the following resources:
+- Next.js
+- Tailwind CSS
+- ShadCN UI
+- Vercel AI SDK
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Last words
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
+First `Next.js` project!
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+It was a fun experience trying out Next.js, I really liked the framework and the architecture. Tribute to the well written Next.js documentation
