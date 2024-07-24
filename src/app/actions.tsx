@@ -1,7 +1,13 @@
 "use server"
 
 import { createStreamableValue } from "ai/rsc"
-import { CoreMessage, CoreTool, streamText, StreamTextResult } from "ai"
+import {
+  APICallError,
+  type CoreMessage,
+  type CoreTool,
+  streamText,
+  type StreamTextResult,
+} from "ai"
 import { openai } from "@ai-sdk/openai"
 
 const systemSetUpMessage = `
@@ -34,13 +40,27 @@ const systemSetUpMessage = `
 `
 
 export async function continueConversation(messages: CoreMessage[]) {
-  const result: StreamTextResult<Record<string, CoreTool<any, any>>> =
-    await streamText({
+  let initialValue
+
+  try {
+    const streamTextResult: StreamTextResult<
+      Record<string, CoreTool<any, any>>
+    > = await streamText({
       model: openai("gpt-4-turbo"),
       system: systemSetUpMessage,
       messages,
     })
 
-  const stream = createStreamableValue(result.textStream)
-  return stream.value
+    initialValue = streamTextResult.textStream
+  } catch (error) {
+    initialValue =
+      "Something went wrong, I cannot give you an answer at the moment."
+
+    if (error instanceof APICallError) {
+      // DO SOMETHING like send an alert or log the error on the dev environment
+    }
+  }
+
+  const streamableValue = createStreamableValue(initialValue)
+  return streamableValue.value
 }
