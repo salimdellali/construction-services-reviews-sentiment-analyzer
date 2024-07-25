@@ -1,15 +1,10 @@
 "use server"
 
-import { createStreamableValue } from "ai/rsc"
-import {
-  APICallError,
-  type CoreMessage,
-  type CoreTool,
-  streamText,
-  type StreamTextResult,
-} from "ai"
+import { APICallError, generateText } from "ai"
 import { openai } from "@ai-sdk/openai"
+import { OpenAIChatModelId } from "@ai-sdk/openai/internal"
 
+const openAIChatModelId: OpenAIChatModelId = "gpt-4-turbo"
 const systemSetUpMessage = `
   You are an AI chatbot specialized in analyzing the sentiment of user reviews. 
   When a user inputs a review, your task is to determine and respond with the sentiment of the review.
@@ -39,28 +34,24 @@ const systemSetUpMessage = `
   Do not perform any tasks beyond sentiment classification.
 `
 
-export async function continueConversation(messages: CoreMessage[]) {
-  let initialValue
+export async function getAnswer(prompt: string): Promise<string> {
+  let answer
 
   try {
-    const streamTextResult: StreamTextResult<
-      Record<string, CoreTool<any, any>>
-    > = await streamText({
-      model: openai("gpt-4-turbo"),
+    const generateTextResult = await generateText({
+      model: openai(openAIChatModelId),
       system: systemSetUpMessage,
-      messages,
+      prompt,
     })
 
-    initialValue = streamTextResult.textStream
+    answer = generateTextResult.text
   } catch (error) {
-    initialValue =
-      "Something went wrong, I cannot give you an answer at the moment."
+    answer = "Something went wrong, I cannot give you an answer at the moment."
 
     if (error instanceof APICallError) {
       // DO SOMETHING like send an alert or log the error on the dev environment
     }
   }
 
-  const streamableValue = createStreamableValue(initialValue)
-  return streamableValue.value
+  return answer
 }

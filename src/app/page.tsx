@@ -3,8 +3,7 @@
 import { Input } from "../components/ui/input"
 import { useEffect, useRef, useState } from "react"
 import { type CoreMessage } from "ai"
-import { continueConversation } from "./actions"
-import { readStreamableValue } from "ai/rsc"
+import { getAnswer } from "./actions"
 import { Separator } from "../components/ui/separator"
 import { Skeleton } from "../components/ui/skeleton"
 
@@ -63,20 +62,14 @@ export default function Chat() {
     // 4. set loading state
     setIsLoading(true)
 
-    // 5. call the continue conversation backend action and get the assistant's response
-    const result = await continueConversation(newMessages)
+    // 5. call the getAnswer backend action and get the assistant's response
+    const answer = await getAnswer(input)
 
     // 6 clear loading state
     setIsLoading(false)
 
-    // 7. asynchronously iterate over the chunks of received data and
-    // update the messages state with the received assistant's response
-    for await (const content of readStreamableValue(result)) {
-      setMessages([
-        ...newMessages,
-        { role: Role.ASSISTANT, content: content as string },
-      ])
-    }
+    // 7. update the messages state with the received assistant's response
+    setMessages([...newMessages, { role: Role.ASSISTANT, content: answer }])
   }
 
   return (
