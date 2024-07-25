@@ -4,7 +4,7 @@ import { APICallError, generateText } from "ai"
 import { openai } from "@ai-sdk/openai"
 import { OpenAIChatModelId } from "@ai-sdk/openai/internal"
 
-const openAIChatModelId: OpenAIChatModelId = "gpt-4-turbo"
+const openAIChatModelId: OpenAIChatModelId = "gpt-4o-mini"
 const systemSetUpMessage = `
   You are an AI chatbot specialized in analyzing the sentiment of user reviews. 
   When a user inputs a review, your task is to determine and respond with the sentiment of the review.
