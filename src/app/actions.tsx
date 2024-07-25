@@ -29,13 +29,13 @@ const systemSetUpMessage = `
       - Review: "The construction service was adequate. The project was completed on time, but there were some minor issues that needed fixing."
       - Sentiment: Neutral
 
-  When responding, simply provide the sentiment classification. 
+  Respond only with one word: either "Positive", "Negative", or "Neutral". 
   If the review is ambiguous or unclear, ask the user for more details. 
   Do not perform any tasks beyond sentiment classification.
 `
 
-export async function getAnswer(prompt: string): Promise<string> {
-  let answer
+export async function getAnswer(prompt: string): Promise<AnswerDTO> {
+  let answer: string
 
   try {
     const generateTextResult = await generateText({
@@ -53,5 +53,7 @@ export async function getAnswer(prompt: string): Promise<string> {
     }
   }
 
-  return answer
+  return {
+    text: answer,
+  }
 }

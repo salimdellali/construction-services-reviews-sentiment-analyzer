@@ -63,13 +63,16 @@ export default function Chat() {
     setIsLoading(true)
 
     // 5. call the getAnswer backend action and get the assistant's response
-    const answer = await getAnswer(input)
+    const answer: AnswerDTO = await getAnswer(input)
 
     // 6 clear loading state
     setIsLoading(false)
 
     // 7. update the messages state with the received assistant's response
-    setMessages([...newMessages, { role: Role.ASSISTANT, content: answer }])
+    setMessages([
+      ...newMessages,
+      { role: Role.ASSISTANT, content: answer.text },
+    ])
   }
 
   return (
